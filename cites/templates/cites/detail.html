@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ story.title }}</title>
+</head>
+<body>
+<h2>{{ story.title }}</h2>
+<h3>({{ story.author }})</h3>
+<table>
+    {% for level in paragraphs %}
+        <tr>
+            {% for paragraph in level %}
+                <td>
+                    Score: {{ paragraph.score }}<br>
+                    {{ paragraph.text }}<br>
+                    <b>({{ paragraph.author }}
+                        level= {{ paragraph.level }}) </b><br>
+                    <b>&#8607 &nbsp; &#8673 &nbsp; &#8675 &nbsp; &#8609</b><br>
+                    <br>
+                </td>
+            {% endfor %}
+        </tr>
+    {% endfor %}
+</table>
+</body>
+</html>

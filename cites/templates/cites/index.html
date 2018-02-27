@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Parallel Citations</title>
+</head>
+<body>
+<h1>Stories</h1>
+{#TODO: if user logged in, link to profile#}
+<h3>categories | top stories | log in</h3>
+<br>
+<table>
+    <tr>
+        <th>
+            Story Title
+        </th>
+        <th>
+            Author
+        </th>
+    </tr>
+    {% for story in all_stories %}
+        <tr>
+            <td>
+                <a href="{% url 'cites:detail' story.url %}">{{ story.title }}</a>
+            </td>
+            <td>
+                {{ story.author }}
+            </td>
+        </tr>
+    {% endfor %}
+</table>
+</body>
+</html>
