@@ -27,6 +27,21 @@ class StoryManager(models.Manager):
 
         return story
 
+    def stories_previews(self, start=0, size=20):
+        all_stories = self.all()[start:start + size]
+        stories_previews = []
+        for story in all_stories:
+            original_paragraph = story.paragraph_set.get(level=0)
+            stories_previews.append({'story': story,
+                                     'preview': original_paragraph})
+        return stories_previews
+
+    def update_urls(self):
+        all_stories = self.only('url', 'id').select_for_update().all()
+        for story in all_stories:
+            story.url = id_to_url(story.id)
+            story.save()
+
 
 class ParagraphManager(models.Manager):
     def create_paragraph(self, author, parent_paragraph, text):
@@ -40,6 +55,12 @@ class ParagraphManager(models.Manager):
                                 score=score,
                                 level=level)
         return paragraph
+
+    def update_urls(self):
+        all_paragraphs = self.only('url', 'id').select_for_update().all()
+        for paragraph in all_paragraphs:
+            paragraph.url = id_to_url(paragraph.id)
+            paragraph.save()
 
 
 class VotingRecordManager(models.Manager):
@@ -58,13 +79,18 @@ class Story(models.Model):
 
     created_date = models.DateTimeField(auto_now_add=True)
     edited_date = models.DateTimeField(auto_now=True)
+    # TODO: move the preceding to abstract base class
     objects = StoryManager()
 
     def __str__(self):
         return self.title
 
+    class Meta:
+        ordering = ['-score', 'created_date']
+
 
 class Paragraph(models.Model):
+    """Self referential object to accommodate a tree structure"""
     story = models.ForeignKey(Story, on_delete=CASCADE)
     parent_paragraph = models.ForeignKey('self',
                                          on_delete=CASCADE,
@@ -77,25 +103,66 @@ class Paragraph(models.Model):
 
     voters = models.ManyToManyField('paracite_profile.Profile',
                                     through='VotingRecord',
+                                    through_fields=(
+                                        'paragraph', 'profile'),
                                     related_name='voters')
     score = models.IntegerField()
+    url = models.URLField(max_length=8, unique=True)
     level = models.IntegerField()
 
     created_date = models.DateTimeField(auto_now_add=True)
     edited_date = models.DateTimeField(auto_now=True)
     objects = ParagraphManager()
 
-    def siblings(self):
-        return self.story.paragraph_set.filter(
-            parent_paragraph=self.parent_paragraph)
+    def children(self, start=0, size=4):
+        """
+        Returns the direct child paragraphs ordered by score
+        :param start: specifies index to start from
+        :param size: number of paragraphs to return
+        :return:
+        """
+        return self.paragraph_set.exclude(id=self.id)[start:start + size]
 
-    def siblings_voted_by(self, profile):
-        return self.story.paragraph_set.filter(
-            parent_paragraph=self.parent_paragraph,
-            votingrecord__profile=profile)
+    def siblings(self, start=0, size=3):
+        """
+        Returns a queryset of paragraphs that follow the same parent
+        paragraph.
+        :param size: number of paragraphs to return
+        :param start: specifies index to start from
+        :return: queryset of paragraphs
+        """
+        return self.parent_paragraph.paragraph_set.exclude(
+            id=self.id)[start:start + size]
+
+    def child_chain(self, max_count=20):
+        """
+        Returns a list starting with the original paragraph and up to 20 child
+        paragraphs selected by the top score child from each level in order
+        of level.
+        :return: a list of paragraphs
+        """
+        paragraphs = []
+        paragraph = self
+        index = 0
+
+        queryset = self.paragraph_set.all()
+        paragraphs.append(paragraph)
+
+        while paragraph.paragraph_set.exists() and index < max_count:
+            paragraph = paragraph.paragraph_set.first()
+            paragraphs.append(paragraph)
+            index += 1
+        # TODO: This needs optimization to hit database less
+        # TODO: USE https://github.com/django-mptt/django-mptt ?
+        # TODO: OR send whole comment list and offload organization to js
+
+        return paragraphs
 
     def __str__(self):
         return self.text
+
+    class Meta:
+        ordering = ['-score', 'created_date']
 
 
 class VotingRecord(models.Model):
@@ -112,8 +179,9 @@ class VotingRecord(models.Model):
         (VERY_BAD, 'Very Bad'),
     )
 
-    profile = models.ForeignKey('paracite_profile.Profile', on_delete=CASCADE)
-    paragraph = models.ForeignKey(Paragraph, on_delete=CASCADE)
+    profile = models.ForeignKey('paracite_profile.Profile',
+                                on_delete=PROTECT)
+    paragraph = models.ForeignKey(Paragraph, on_delete=PROTECT)
     vote = models.IntegerField(choices=VOTE_CHOICES)
 
     objects = VotingRecordManager()

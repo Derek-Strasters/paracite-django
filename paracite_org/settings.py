@@ -24,7 +24,8 @@ SECRET_KEY = '6*cg6pn+3n9vxyethg=v2exo3ia_k=1ex-7c&s0_gg2j&rw4%b'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1',
+                 'beefy.vpn.paracite.org', '10.0.0.118']
 
 # Application definition
 
@@ -115,3 +116,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
 STATIC_URL = '/static/'
+
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static"),
+]

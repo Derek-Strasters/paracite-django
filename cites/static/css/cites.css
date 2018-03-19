@@ -1,0 +1,50 @@
+/*    TAGS    */
+
+body {
+    font-family: 'Montserrat', sans-serif;
+    background-color: whitesmoke;
+    font-size: medium;
+}
+
+header {
+    font-family: 'Neuton', serif;
+    font-weight: bolder;
+    /*font-size: xx-large;*/
+    text-align: center;
+    page-break-after: always;
+}
+
+h1, h2 {
+    font-family: 'Neuton', serif;
+}
+
+h1 a:link, h1 a:visited, h1 a:active, h2 a:link, h2 a:visited, h2 a:active {
+    text-decoration: none;
+    color: black;
+}
+
+h1 a:hover, h2 a:hover {
+    text-decoration: none;
+    color: darkslategray;
+}
+
+h3, h4 {
+    font-family: 'Montserrat', sans-serif;
+}
+
+/*    CLASSES    */
+
+.filler {
+    color: cadetblue;
+    text-align: center;
+}
+
+.paragraph-text a:link, .paragraph-text a:visited, .paragraph-text a:active {
+    text-decoration: none;
+    color: black;
+}
+
+.paragraph-text a:hover {
+    text-decoration: none;
+    color: darkslategray;
+}

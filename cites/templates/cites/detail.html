@@ -1,27 +1,92 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>{{ story.title }}</title>
-</head>
-<body>
-<h2>{{ story.title }}</h2>
-<h3>({{ story.author }})</h3>
-<table>
-    {% for level in paragraphs %}
-        <tr>
-            {% for paragraph in level %}
-                <td>
-                    Score: {{ paragraph.score }}<br>
-                    {{ paragraph.text }}<br>
-                    <b>({{ paragraph.author }}
-                        level= {{ paragraph.level }}) </b><br>
-                    <b>&#8607 &nbsp; &#8673 &nbsp; &#8675 &nbsp; &#8609</b><br>
-                    <br>
-                </td>
+{% extends 'cites/base.html' %}
+
+{% block title %}{{ story.title }}{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h2>
+            <a href="{% url 'cites:detail_story' story.url %}">{{ story.title|title }}</a>
+        </h2>
+        <h3>({{ story.author }})</h3>
+
+        {# Lead Paragraph #}
+        <div class="row">
+            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 well">
+                <div data-para-url="{% url "cites:vote" lead_paragraph.url %}">
+                    Love:<span
+                        class="score">{{ lead_paragraph.score }}</span><br>
+                    <p class="paragraph-text">
+                        <a href="{% url 'cites:detail_para' lead_paragraph.url %}">{{ lead_paragraph.text }}</a>
+                    </p>
+                    {{ lead_paragraph.level }}
+                    ({{ lead_paragraph.author }})<br>
+                    {% include 'cites/paragraph_buttons.html' %}
+                </div>
+            </div>
+        </div>
+        {# Response Form #}
+        <div class="row" id="response-row">
+            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 well collapse">
+                <form action="{% url "cites:post_para" lead_paragraph.url %}"
+                      method="post">
+                    {% csrf_token %}
+                    <input type="text" id="response-paragraph"
+                           name="new-para"
+                           title="Enter Your Next Paragraph"><br>
+                    <button type="submit" id="submit">Submit</button>
+                </form>
+            </div>
+        </div>
+        {# Child Chains #}
+        <div class="row">
+            {% for paragraph_chain in paragraphs %}
+                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-6 well">
+                    {% for paragraph in paragraph_chain %}
+                        <div data-para-url="{% url "cites:vote" paragraph.url %}">
+                            Love:<span
+                                class="score">{{ paragraph.score }}</span><br>
+
+                            <p class="paragraph-text">
+                                <a href="{% url 'cites:detail_para' paragraph.url %}">{{ paragraph.text }}</a>
+                            </p>
+
+                            {{ paragraph.level }}
+                            ({{ paragraph.author }})<br>
+
+                            {% include 'cites/paragraph_buttons.html' %}
+                        </div>
+                    {% endfor %}
+                </div>
             {% endfor %}
-        </tr>
-    {% endfor %}
-</table>
-</body>
-</html>
+            {% for filler in fillers %}
+                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-6 paragraph-text well">
+                    <div class="filler">
+                        {{ filler.filler }}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascript %}
+    <script type="application/javascript">
+        $('.vote-btn').on("click", function () {
+            var voteVal = +($(this).attr('data-vote'));
+            var paraURL = $(this).parent().parent().attr('data-para-url');
+            var scoreSpan = $(this).parent().siblings(".score")[0];
+
+            function vote_success(data) {
+                if (data.success) {
+                    var oldScore = +($(scoreSpan).text());
+                    var newScore = oldScore + voteVal;
+                    $(scoreSpan).text(newScore.toString());
+                } else {
+                    {# TODO: Add error handling/reporting #}
+                }
+            }
+
+            $.post(paraURL, {"v": voteVal}, vote_success, 'json');
+        });
+    </script>
+{% endblock %}

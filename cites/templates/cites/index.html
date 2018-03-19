@@ -1,33 +1,44 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Parallel Citations</title>
-</head>
-<body>
-<h1>Stories</h1>
-{#TODO: if user logged in, link to profile#}
-<h3>categories | top stories | log in</h3>
-<br>
-<table>
-    <tr>
-        <th>
-            Story Title
-        </th>
-        <th>
-            Author
-        </th>
-    </tr>
-    {% for story in all_stories %}
+{% extends 'cites/base.html' %}
+
+{% block title %}Top Stories{% endblock %}
+
+{% block content %}
+    <h1>Top Stories</h1>
+    {#TODO: if user logged in, link to profile#}
+    <h3>categories | top stories | log in</h3>
+    <br>
+    <table>
+        <tbody>
+        <col width="20%">
+        <col width="10%">
         <tr>
-            <td>
-                <a href="{% url 'cites:detail' story.url %}">{{ story.title }}</a>
-            </td>
-            <td>
-                {{ story.author }}
-            </td>
+            <th><h3>
+                Story Title
+            </h3></th>
+            <th><h3>
+                Author
+            </h3></th>
+            <th><h3>
+                Preview
+            </h3></th>
         </tr>
-    {% endfor %}
-</table>
-</body>
-</html>
+        {% for story_preview in stories_previews %}
+            <tr>
+                <td class="story-preview">
+                    <a href="{% url 'cites:detail_story' story_preview.story.url %}">
+                        {{ story_preview.story.title|title }}
+                    </a>
+                </td>
+                <td class="story-preview"><span class="author">
+                    {{ story_preview.story.author }}
+                </span>
+                </td>
+                <td class="story-preview">
+                    {{ story_preview.preview.text }}
+                    <br>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

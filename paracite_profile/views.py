@@ -7,4 +7,4 @@ def index(request):
     #  TODO: create profile page, or sign-in/signup
     all_profiles = Profile.objects.all()
     context = {'all_profiles': all_profiles}
-    return render(request, 'index.html', context)
+    return render(request, 'paracite_profile/index.html', context)
