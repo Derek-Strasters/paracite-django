@@ -2,7 +2,7 @@
 
 body {
     font-family: 'Montserrat', sans-serif;
-    background-color: whitesmoke;
+    background-color: ghostwhite;
     font-size: medium;
 }
 
@@ -47,4 +47,8 @@ h3, h4 {
 .paragraph-text a:hover {
     text-decoration: none;
     color: darkslategray;
+}
+
+.well {
+    background-color: whitesmoke;
 }

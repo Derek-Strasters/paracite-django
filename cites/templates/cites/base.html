@@ -5,6 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width = device-width, initial-scale = 1">
 
+    <link rel="shortcut icon" type="image/png" href="{% static 'image/favicon.png' %}">
     <link rel="stylesheet" type="text/css"
           href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
     <link rel="stylesheet"
@@ -37,11 +38,11 @@
 {#    Look at this fancy footer#}
     {#TODO: make footer#}
 {#</footer>#}
+<script type="application/javascript"
+        src="{% static 'js/jquery-3.3.1.min.js' %}"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
         integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
         crossorigin="anonymous"></script>
-<script type="application/javascript"
-        src="{% static 'js/jquery-3.3.1.min.js' %}"></script>
 <script type="application/javascript"
         src="{% static 'js/cites.js' %}"></script>
 {% block javascript %} {% endblock %}

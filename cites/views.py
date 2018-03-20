@@ -25,6 +25,13 @@ def detail_para(request, paragraph_id):
 def render_detail(request, story, paragraph):
     paragraphs = []
     fillers = []
+    url_query = request.GET
+    has_response = False
+
+    print(url_query.get('is_response', default=False))
+    if url_query.get('is_response', default=False) == 'true':
+        has_response = True
+    # TODO: is 'is_response' too hardcoded?
 
     for child in paragraph.children():
         paragraphs.append(child.child_chain())
@@ -37,6 +44,7 @@ def render_detail(request, story, paragraph):
         'lead_paragraph': paragraph,
         'paragraphs': paragraphs,
         'fillers': fillers,
+        'responding': has_response,
     }
     return render(request, 'cites/detail.html', context)
 

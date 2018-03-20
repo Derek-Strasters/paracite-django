@@ -1,5 +1,10 @@
 {% extends 'cites/base.html' %}
 
+{% block stylesheet %}
+    <style>
+    </style>
+{% endblock %}
+
 {% block title %}{{ story.title }}{% endblock %}
 
 {% block content %}
@@ -11,56 +16,72 @@
 
         {# Lead Paragraph #}
         <div class="row">
-            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 well">
-                <div data-para-url="{% url "cites:vote" lead_paragraph.url %}">
-                    Love:<span
-                        class="score">{{ lead_paragraph.score }}</span><br>
+            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                <span class="pull-left">Love:</span>
+                <span class="score">{{ lead_paragraph.score }}</span>
+                <span class="pull-right">{{ lead_paragraph.level }}({{ lead_paragraph.author }})</span>
+                <div class="well"
+                     data-para-url="{% url "cites:vote" lead_paragraph.url %}">
                     <p class="paragraph-text">
                         <a href="{% url 'cites:detail_para' lead_paragraph.url %}">{{ lead_paragraph.text }}</a>
                     </p>
-                    {{ lead_paragraph.level }}
-                    ({{ lead_paragraph.author }})<br>
                     {% include 'cites/paragraph_buttons.html' %}
+                    <button class="btn pull-right"
+                            id="lead-para-res-btn"
+                            data-toggle="collapse"
+                            data-target="#response-div"
+                            type="button"
+                            aria-expanded="false"
+                            aria-controls="collapseExample">
+                        <span class="glyphicon glyphicon-plus"></span>
+                    </button>
                 </div>
             </div>
         </div>
         {# Response Form #}
-        <div class="row" id="response-row">
-            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 well collapse">
+        <div class="row collapse" id="response-div">
+
+            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
                 <form action="{% url "cites:post_para" lead_paragraph.url %}"
                       method="post">
                     {% csrf_token %}
                     <input type="text" id="response-paragraph"
                            name="new-para"
                            title="Enter Your Next Paragraph"><br>
-                    <button type="submit" id="submit">Submit</button>
+                    <button type="submit" class="btn btn-primary"
+                            id="submit">Submit
+                    </button>
                 </form>
             </div>
         </div>
         {# Child Chains #}
         <div class="row">
             {% for paragraph_chain in paragraphs %}
-                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-6 well">
+                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-6">
                     {% for paragraph in paragraph_chain %}
-                        <div data-para-url="{% url "cites:vote" paragraph.url %}">
-                            Love:<span
-                                class="score">{{ paragraph.score }}</span><br>
-
+                        <span class="pull-left">Love:</span>
+                        <span class="score">{{ paragraph.score }}</span>
+                        <span class="pull-right">{{ paragraph.level }}({{ paragraph.author }})</span>
+                        <div class="well"
+                             data-para-url="{% url 'cites:vote' paragraph.url %}">
                             <p class="paragraph-text">
                                 <a href="{% url 'cites:detail_para' paragraph.url %}">{{ paragraph.text }}</a>
                             </p>
-
-                            {{ paragraph.level }}
-                            ({{ paragraph.author }})<br>
-
                             {% include 'cites/paragraph_buttons.html' %}
+                            <button type="button"
+                                    class="btn pull-right make-response"
+                                    role="button"
+                                    data-response-url="{% url 'cites:detail_para' paragraph.url %}">
+                                <span class="glyphicon glyphicon-plus"></span>
+                            </button>
                         </div>
                     {% endfor %}
                 </div>
             {% endfor %}
             {% for filler in fillers %}
-                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-6 paragraph-text well">
-                    <div class="filler">
+                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-6 paragraph-text">
+                    <br>
+                    <div class="filler well">
                         {{ filler.filler }}
                     </div>
                 </div>
@@ -71,10 +92,10 @@
 
 {% block javascript %}
     <script type="application/javascript">
-        $('.vote-btn').on("click", function () {
+        $('.vote-btn').on('click', function () {
             var voteVal = +($(this).attr('data-vote'));
             var paraURL = $(this).parent().parent().attr('data-para-url');
-            var scoreSpan = $(this).parent().siblings(".score")[0];
+            var scoreSpan = $(this).parent().parent().siblings(".score")[0];
 
             function vote_success(data) {
                 if (data.success) {
@@ -87,6 +108,17 @@
             }
 
             $.post(paraURL, {"v": voteVal}, vote_success, 'json');
+        });
+
+        $('.make-response').on('click', function () {
+            var paraURL = $(this).attr('data-response-url');
+            window.location.replace(paraURL + "?is_response=true");
+            {#$.get(paraURL, {"is_response": true});#}
+        });
+        $(document).ready(function () {
+            {% if responding %}
+                $('#response-div').collapse('show');
+            {% endif %}
         });
     </script>
 {% endblock %}
