@@ -1,6 +1,8 @@
 from django.http.response import JsonResponse
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 
+from paracite_profile.models import Profile
+from .converters import id_to_url
 from .models import Story, Paragraph
 
 
@@ -22,16 +24,15 @@ def detail_para(request, paragraph_id):
     return render_detail(request, story, lead_paragraph)
 
 
-def render_detail(request, story, paragraph):
+def detail_para_respond(request, paragraph_id):
+    lead_paragraph = get_object_or_404(Paragraph, id=paragraph_id)
+    story = Story.objects.get(id=lead_paragraph.story.id)  # TODO: try/catch
+    return render_detail(request, story, lead_paragraph, is_response=True)
+
+
+def render_detail(request, story, paragraph, is_response=False):
     paragraphs = []
     fillers = []
-    url_query = request.GET
-    has_response = False
-
-    print(url_query.get('is_response', default=False))
-    if url_query.get('is_response', default=False) == 'true':
-        has_response = True
-    # TODO: is 'is_response' too hardcoded?
 
     for child in paragraph.children():
         paragraphs.append(child.child_chain())
@@ -44,7 +45,7 @@ def render_detail(request, story, paragraph):
         'lead_paragraph': paragraph,
         'paragraphs': paragraphs,
         'fillers': fillers,
-        'responding': has_response,
+        'responding': is_response,
     }
     return render(request, 'cites/detail.html', context)
 
@@ -70,8 +71,11 @@ def post_para(request, paragraph_id):
 
     if request.method == "POST":
         new_para_text = request.POST['new-para']
-        print(new_para_text)
+        # TODO: add data validation
+        Paragraph.objects.create_paragraph(Profile.objects.first(),
+                                           new_para_text,
+                                           paragraph)
         # TODO: finish when profile is ready
         pass
 
-    return detail_para(request, paragraph_id)
+    return redirect('cites:detail_para', paragraph_id=id_to_url(paragraph_id))

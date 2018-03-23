@@ -3,42 +3,34 @@
 {% block title %}Top Stories{% endblock %}
 
 {% block content %}
-    <h1>Top Stories</h1>
-    {#TODO: if user logged in, link to profile#}
-    <h3>categories | top stories | log in</h3>
-    <br>
-    <table>
-        <tbody>
-        <col width="20%">
-        <col width="10%">
-        <tr>
-            <th><h3>
-                Story Title
-            </h3></th>
-            <th><h3>
-                Author
-            </h3></th>
-            <th><h3>
-                Preview
-            </h3></th>
-        </tr>
+    <div class="container">
+        <div class="row">
+            <h1>Top Stories</h1>
+        </div>
+        {#TODO: if user logged in, link to profile#}
+        <div class="row bg-coral">
+            <div class="col-lg-3 col-md-3 col-sm-3"><h2>Story Title</h2></div>
+            <div class="col-lg-3 col-md-3 d-md-block d-sm-none d-none">
+                <h2>Author</h2></div>
+            <div class="col-lg-6 col-md-6 col-sm-9"><h2>Preview</h2></div>
+        </div>
+        <br>
         {% for story_preview in stories_previews %}
-            <tr>
-                <td class="story-preview">
-                    <a href="{% url 'cites:detail_story' story_preview.story.url %}">
-                        {{ story_preview.story.title|title }}
+            <div class="row bg-white">
+                <div class="col-lg-3 col-md-3 col-sm-3">
+                    <a class="text-coral"
+                       href="{% url 'cites:detail_story' story_preview.story.url %}">
+                        <b>{{ story_preview.story.title|title }}</b>
                     </a>
-                </td>
-                <td class="story-preview"><span class="author">
+                </div>
+                <div class="col-lg-3 col-md-3 d-md-block d-sm-none d-none">
                     {{ story_preview.story.author }}
-                </span>
-                </td>
-                <td class="story-preview">
+                </div>
+                <div class="col-lg-6 col-md-6 col-sm-9">
                     {{ story_preview.preview.text }}
-                    <br>
-                </td>
-            </tr>
+                </div>
+            </div>
+            <br>
         {% endfor %}
-        </tbody>
-    </table>
+    </div>
 {% endblock %}

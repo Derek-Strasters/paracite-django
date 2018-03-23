@@ -20,10 +20,10 @@ class StoryManager(models.Manager):
     def create_story(self, author, title, text):
         story = self.create(author=author, title=title)
         url = id_to_url(story.id)
-        self.update(url=url)
+        story.url = url  # TODO: Better way to do this? THIS WONT WORK IN PROD
+        story.save()
 
-        paragraph = Paragraph(story=story, author=author, text=text, level=0)
-        paragraph.save()
+        Paragraph.objects.create_first_paragraph(story, author, text)
 
         return story
 
@@ -44,16 +44,33 @@ class StoryManager(models.Manager):
 
 
 class ParagraphManager(models.Manager):
-    def create_paragraph(self, author, parent_paragraph, text):
+    def create_first_paragraph(self, story, author, text):
+        level = 0
+        score = randrange(5, 15)
+        paragraph = self.create(story=story,
+                                author=author,
+                                text=text,
+                                score=score,
+                                level=level)
+        url = id_to_url(paragraph.id)
+        paragraph.url = url
+        paragraph.save()
+
+        return paragraph
+
+    def create_paragraph(self, author, text, parent_paragraph):
         level = parent_paragraph.level + 1
         score = randrange(5, 15)
-
         paragraph = self.create(story=parent_paragraph.story,
                                 parent_paragraph=parent_paragraph,
                                 author=author,
                                 text=text,
                                 score=score,
                                 level=level)
+        url = id_to_url(paragraph.id)
+        paragraph.url = url
+        paragraph.save()
+
         return paragraph
 
     def update_urls(self):
@@ -91,24 +108,25 @@ class Story(models.Model):
 
 class Paragraph(models.Model):
     """Self referential object to accommodate a tree structure"""
+    # Required
     story = models.ForeignKey(Story, on_delete=CASCADE)
-    parent_paragraph = models.ForeignKey('self',
-                                         on_delete=CASCADE,
-                                         blank=True,
-                                         null=True)
     author = models.ForeignKey('paracite_profile.Profile',
                                on_delete=PROTECT,
                                related_name='author')
     text = models.CharField(max_length=4095)
-
+    score = models.IntegerField()
+    url = models.URLField(max_length=8, unique=True)
+    level = models.IntegerField()
+    # Not required
     voters = models.ManyToManyField('paracite_profile.Profile',
                                     through='VotingRecord',
                                     through_fields=(
                                         'paragraph', 'profile'),
                                     related_name='voters')
-    score = models.IntegerField()
-    url = models.URLField(max_length=8, unique=True)
-    level = models.IntegerField()
+    parent_paragraph = models.ForeignKey('self',
+                                         on_delete=CASCADE,
+                                         blank=True,
+                                         null=True)
 
     created_date = models.DateTimeField(auto_now_add=True)
     edited_date = models.DateTimeField(auto_now=True)

@@ -2,15 +2,14 @@
 
 body {
     font-family: 'Montserrat', sans-serif;
-    background-color: ghostwhite;
+    background-color: whitesmoke;
     font-size: medium;
 }
 
 header {
-    font-family: 'Neuton', serif;
-    font-weight: bolder;
-    /*font-size: xx-large;*/
+    font-family: 'Montserrat', sans-serif;
     text-align: center;
+    font-size: medium;
     page-break-after: always;
 }
 
@@ -34,6 +33,15 @@ h3, h4 {
 
 /*    CLASSES    */
 
+.link-home {
+    font-family: 'Neuton', serif;
+    font-size: xx-large;
+}
+
+.link-home:hover {
+    color: darkslategray;
+}
+
 .filler {
     color: cadetblue;
     text-align: center;
@@ -49,6 +57,18 @@ h3, h4 {
     color: darkslategray;
 }
 
-.well {
-    background-color: whitesmoke;
+.bg-coral {
+    background-color: coral;
 }
+
+.bg-firebrick {
+    background-color: firebrick;
+    color: white;
+
+}
+
+.text-coral {
+    color: coral;
+}
+
+/*    BOOTSTRAP OVERRIDES    */

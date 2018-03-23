@@ -1,55 +1,57 @@
 {% extends 'cites/base.html' %}
 
-{% block stylesheet %}
-    <style>
-    </style>
-{% endblock %}
-
 {% block title %}{{ story.title }}{% endblock %}
 
 {% block content %}
     <div class="container">
-        <h2>
-            <a href="{% url 'cites:detail_story' story.url %}">{{ story.title|title }}</a>
-        </h2>
-        <h3>({{ story.author }})</h3>
-
+        <div class="row">
+            <div class="col">
+                <h1>
+                    <a href="{% url 'cites:detail_story' story.url %}">{{ story.title|title }}</a>
+                </h1>
+            </div>
+        </div>
         {# Lead Paragraph #}
         <div class="row">
-            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                <span class="pull-left">Love:</span>
-                <span class="score">{{ lead_paragraph.score }}</span>
-                <span class="pull-right">{{ lead_paragraph.level }}({{ lead_paragraph.author }})</span>
-                <div class="well"
-                     data-para-url="{% url "cites:vote" lead_paragraph.url %}">
-                    <p class="paragraph-text">
+            <div class="col-lg-6 col-md-8 col-sm-12">
+                <div class="card bg-coral mb-4">
+                    <div class="card-body pt-1 paragraph-text">
+                        <b>{{ lead_paragraph.level }}({{ lead_paragraph.author }})</b>
+                        <br>
                         <a href="{% url 'cites:detail_para' lead_paragraph.url %}">{{ lead_paragraph.text }}</a>
-                    </p>
-                    {% include 'cites/paragraph_buttons.html' %}
-                    <button class="btn pull-right"
-                            id="lead-para-res-btn"
-                            data-toggle="collapse"
-                            data-target="#response-div"
-                            type="button"
-                            aria-expanded="false"
-                            aria-controls="collapseExample">
-                        <span class="glyphicon glyphicon-plus"></span>
-                    </button>
+                    </div>
+                    <div class="card-footer"
+                         data-para-url="{% url "cites:vote" lead_paragraph.url %}">
+                        <span class="score pull-left">{{ lead_paragraph.score }}&nbsp;</span>
+                        {% include 'cites/paragraph_buttons.html' %}
+                        <a class="btn btn-sm btn-secondary pull-right"
+                           id="lead-para-res-btn"
+                           data-toggle="collapse"
+                           href="#response-div"
+                           role="button"
+                           aria-expanded="false"
+                           aria-controls="collapseExample">
+                            <span class="glyphicon glyphicon-plus"></span>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
         {# Response Form #}
         <div class="row collapse" id="response-div">
-
-            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+            <div class="col-lg-6 col-md-8 col-sm-12">
                 <form action="{% url "cites:post_para" lead_paragraph.url %}"
                       method="post">
                     {% csrf_token %}
-                    <input type="text" id="response-paragraph"
-                           name="new-para"
-                           title="Enter Your Next Paragraph"><br>
-                    <button type="submit" class="btn btn-primary"
-                            id="submit">Submit
+                    <textarea class="form-control"
+                              placeholder="Type the next paragraph"
+                              rows="7"
+                              type="text"
+                              id="response-paragraph"
+                              name="new-para"
+                              title="Enter Your Next Paragraph"></textarea>
+                    <button type="submit" class="btn bg-firebrick"
+                            id="submit">Submit!
                     </button>
                 </form>
             </div>
@@ -57,30 +59,34 @@
         {# Child Chains #}
         <div class="row">
             {% for paragraph_chain in paragraphs %}
-                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-6">
+                <div class="col-lg-3 col-md-4 col-sm-6">
                     {% for paragraph in paragraph_chain %}
-                        <span class="pull-left">Love:</span>
-                        <span class="score">{{ paragraph.score }}</span>
-                        <span class="pull-right">{{ paragraph.level }}({{ paragraph.author }})</span>
-                        <div class="well"
-                             data-para-url="{% url 'cites:vote' paragraph.url %}">
-                            <p class="paragraph-text">
+                        <div class="card mb-2">
+                            <div class="card-body pt-1 paragraph-text">
+                                <b>{{ paragraph.level }}&nbsp;({{ paragraph.author }})</b>
+                                <br>
                                 <a href="{% url 'cites:detail_para' paragraph.url %}">{{ paragraph.text }}</a>
-                            </p>
-                            {% include 'cites/paragraph_buttons.html' %}
-                            <button type="button"
-                                    class="btn pull-right make-response"
-                                    role="button"
-                                    data-response-url="{% url 'cites:detail_para' paragraph.url %}">
-                                <span class="glyphicon glyphicon-plus"></span>
-                            </button>
+                            </div>
+                            <div class="card-footer"
+                                 data-para-url="{% url 'cites:vote' paragraph.url %}">
+                                <span class="score pull-left">{{ paragraph.score }}&nbsp;</span>
+                                {% include 'cites/paragraph_buttons.html' %}
+                                <a class="btn btn-sm btn-secondary pull-right make-response"
+                                   role="button"
+                                   data-response-url="{% url 'cites:detail_para_response' paragraph.url %}"
+                                   style="color: white">
+                                    {# why do I have to add this style?? #}
+                                    <span class="glyphicon glyphicon-plus"></span>
+                                </a>
+
+                            </div>
                         </div>
                     {% endfor %}
                 </div>
+                {# TODO: Hide more columns on smaller screens #}
             {% endfor %}
             {% for filler in fillers %}
-                <div class="col-lg-3 col-md-3 col-sm-3 col-xs-6 paragraph-text">
-                    <br>
+                <div class="col-lg-3 col-md-4 d-xl-block d-lg-block d-none paragraph-text">
                     <div class="filler well">
                         {{ filler.filler }}
                     </div>
@@ -95,7 +101,7 @@
         $('.vote-btn').on('click', function () {
             var voteVal = +($(this).attr('data-vote'));
             var paraURL = $(this).parent().parent().attr('data-para-url');
-            var scoreSpan = $(this).parent().parent().siblings(".score")[0];
+            var scoreSpan = $(this).parent().siblings(".score")[0];
 
             function vote_success(data) {
                 if (data.success) {
@@ -112,13 +118,12 @@
 
         $('.make-response').on('click', function () {
             var paraURL = $(this).attr('data-response-url');
-            window.location.replace(paraURL + "?is_response=true");
-            {#$.get(paraURL, {"is_response": true});#}
+            window.location.replace(paraURL);
         });
-        $(document).ready(function () {
-            {% if responding %}
+        {% if responding %}
+            $(document).ready(function () {
                 $('#response-div').collapse('show');
-            {% endif %}
-        });
+            });
+        {% endif %}
     </script>
 {% endblock %}
