@@ -9,45 +9,38 @@ from .models import Story, Paragraph
 
 class IndexView(generic.ListView):
     template_name = 'cites/index.html'
+    context_object_name = 'stories_previews'
 
     def get_queryset(self):
-        return
+        return Story.objects.stories_previews()
 
 
-def index(request):
-    stories_previews = Story.objects.stories_previews()
-    context = {'stories_previews': stories_previews}
-    return render(request, 'cites/index.html', context)
+class CreateStory(generic.CreateView):
+    pass
 
 
 def detail_story(request, story_id):
     story = get_object_or_404(Story, id=story_id)
-    lead_paragraph = story.paragraph_set.get(level=0)  # TODO: try/catch
+    lead_paragraph = story.first_para()
     return render_detail(request, story, lead_paragraph)
 
 
 def detail_para(request, paragraph_id):
     lead_paragraph = get_object_or_404(Paragraph, id=paragraph_id)
-    story = Story.objects.get(id=lead_paragraph.story.id)  # TODO: try/catch
+    story = Story.objects.get(id=lead_paragraph.story.id)
     return render_detail(request, story, lead_paragraph)
 
 
 def detail_para_respond(request, paragraph_id):
     lead_paragraph = get_object_or_404(Paragraph, id=paragraph_id)
-    story = Story.objects.get(id=lead_paragraph.story.id)  # TODO: try/catch
+    story = Story.objects.get(id=lead_paragraph.story.id)
     return render_detail(request, story, lead_paragraph, is_response=True)
 
 
 def render_detail(request, story, paragraph, is_response=False):
-    paragraphs = []
-    fillers = []
-
-    for child in paragraph.children():
-        paragraphs.append(child.child_chain())
-
-    for _ in range(4 - len(paragraphs)):
-        fillers.append({'filler': 'No more alternative paragraphs'})
-
+    filler = {'filler': 'No more alternative paragraphs'}
+    paragraphs = [child for child in paragraph.children()]
+    fillers = [filler] * max(4 - len(paragraphs), 0)
     context = {
         'story': story,
         'lead_paragraph': paragraph,

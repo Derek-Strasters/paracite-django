@@ -29,12 +29,9 @@ class StoryManager(models.Manager):
 
     def stories_previews(self, start=0, size=20):
         all_stories = self.all()[start:start + size]
-        stories_previews = []
-        for story in all_stories:
-            original_paragraph = story.paragraph_set.get(level=0)
-            stories_previews.append({'story': story,
-                                     'preview': original_paragraph})
-        return stories_previews
+        sp = [{'story': s, 'preview': s.first_para()}
+              for s in all_stories]
+        return sp
 
     def update_urls(self):
         all_stories = self.only('url', 'id').select_for_update().all()
@@ -99,6 +96,9 @@ class Story(models.Model):
     edited_date = models.DateTimeField(auto_now=True)
     # TODO: move the preceding to abstract base class
     objects = StoryManager()
+
+    def first_para(self):
+        return self.paragraph_set.get(level=0)
 
     def __str__(self):
         return self.title
