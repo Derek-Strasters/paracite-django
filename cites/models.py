@@ -20,7 +20,7 @@ class StoryManager(models.Manager):
     def create_story(self, author, title, text):
         story = self.select_for_update().create(author=author, title=title)
         url = id_to_url(story.id)
-        story.url = url  # TODO: Better way to do this? THIS WONT WORK IN PROD
+        story.url = url
         story.save()
 
         Paragraph.objects.create_first_paragraph(story, author, text)
@@ -29,8 +29,7 @@ class StoryManager(models.Manager):
 
     def stories_previews(self, start=0, size=20):
         all_stories = self.all()[start:start + size]
-        sp = [{'story': s, 'preview': s.first_para()}
-              for s in all_stories]
+        sp = [{'story': s, 'preview': s.first_para()} for s in all_stories]
         return sp
 
     def update_urls(self):
@@ -89,8 +88,8 @@ class Story(models.Model):
                                on_delete=PROTECT)
 
     score = models.BigIntegerField(default=0)
-    url = models.URLField(max_length=8, unique=True)
-    # FIXME: Should url be the PK?
+    url = models.URLField(max_length=8)  # TODO: Should be unique?
+    # TODO: Should url be the PK?
 
     created_date = models.DateTimeField(auto_now_add=True)
     edited_date = models.DateTimeField(auto_now=True)
@@ -116,7 +115,7 @@ class Paragraph(models.Model):
                                related_name='author')
     text = models.CharField(max_length=4095)
     score = models.IntegerField()
-    url = models.URLField(max_length=8, unique=True)
+    url = models.URLField(max_length=8)
     level = models.IntegerField()
     # Not required
     voters = models.ManyToManyField('paracite_profile.Profile',
