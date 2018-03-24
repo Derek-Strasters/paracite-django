@@ -3,6 +3,10 @@ from django.shortcuts import render
 from .models import Profile
 
 
+class IndexView():
+    pass
+
+
 def index(request):
     #  TODO: create profile page, or sign-in/signup
     all_profiles = Profile.objects.all()

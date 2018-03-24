@@ -1,9 +1,17 @@
 from django.http.response import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
+from django.views import generic
 
 from paracite_profile.models import Profile
 from .converters import id_to_url
 from .models import Story, Paragraph
+
+
+class IndexView(generic.ListView):
+    template_name = 'cites/index.html'
+
+    def get_queryset(self):
+        return
 
 
 def index(request):

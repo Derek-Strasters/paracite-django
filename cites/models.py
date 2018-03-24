@@ -18,7 +18,7 @@ from .converters import id_to_url
 
 class StoryManager(models.Manager):
     def create_story(self, author, title, text):
-        story = self.create(author=author, title=title)
+        story = self.select_for_update().create(author=author, title=title)
         url = id_to_url(story.id)
         story.url = url  # TODO: Better way to do this? THIS WONT WORK IN PROD
         story.save()
@@ -47,11 +47,11 @@ class ParagraphManager(models.Manager):
     def create_first_paragraph(self, story, author, text):
         level = 0
         score = randrange(5, 15)
-        paragraph = self.create(story=story,
-                                author=author,
-                                text=text,
-                                score=score,
-                                level=level)
+        paragraph = self.select_for_update().create(story=story,
+                                                    author=author,
+                                                    text=text,
+                                                    score=score,
+                                                    level=level)
         url = id_to_url(paragraph.id)
         paragraph.url = url
         paragraph.save()
@@ -61,12 +61,13 @@ class ParagraphManager(models.Manager):
     def create_paragraph(self, author, text, parent_paragraph):
         level = parent_paragraph.level + 1
         score = randrange(5, 15)
-        paragraph = self.create(story=parent_paragraph.story,
-                                parent_paragraph=parent_paragraph,
-                                author=author,
-                                text=text,
-                                score=score,
-                                level=level)
+        paragraph = self.select_for_update().create(
+            story=parent_paragraph.story,
+            parent_paragraph=parent_paragraph,
+            author=author,
+            text=text,
+            score=score,
+            level=level)
         url = id_to_url(paragraph.id)
         paragraph.url = url
         paragraph.save()
