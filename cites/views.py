@@ -3,7 +3,6 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.views import generic
 
 from paracite_profile.models import Profile
-from .converters import id_to_url
 from .models import Story, Paragraph
 
 
@@ -16,7 +15,8 @@ class IndexView(generic.ListView):
 
 
 class CreateStory(generic.CreateView):
-    pass
+    model = Story
+    fields = ['title']
 
 
 def detail_story(request, story_id):
@@ -39,7 +39,7 @@ def detail_para_respond(request, paragraph_id):
 
 def render_detail(request, story, paragraph, is_response=False):
     filler = {'filler': 'No more alternative paragraphs'}
-    paragraphs = [child for child in paragraph.children()]
+    paragraphs = [child.child_chain() for child in paragraph.children()]
     fillers = [filler] * max(4 - len(paragraphs), 0)
     context = {
         'story': story,
@@ -79,4 +79,4 @@ def post_para(request, paragraph_id):
         # TODO: finish when profile is ready
         pass
 
-    return redirect('cites:detail_para', paragraph_id=id_to_url(paragraph_id))
+    return redirect(paragraph)

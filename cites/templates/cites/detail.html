@@ -13,16 +13,16 @@
         </div>
         {# Lead Paragraph #}
         <div class="row">
-            <div class="col-lg-6 col-md-8 col-sm-12">
+            <div class="col-xl-6 col-lg-6 col-md-8 col-sm-12">
                 <div class="card bg-coral mb-4">
                     <div class="card-body pt-1 paragraph-text">
                         <b>{{ lead_paragraph.level }}({{ lead_paragraph.author }})</b>
                         <br>
-                        <a href="{% url 'cites:detail_para' lead_paragraph.url %}">{{ lead_paragraph.text }}</a>
+                        <a href="{{ lead_paragraph.get_absolute_url }}">{{ lead_paragraph.text }}</a>
                     </div>
                     <div class="card-footer"
-                         data-para-url="{% url "cites:vote" lead_paragraph.url %}">
-                        <span class="score pull-left">{{ lead_paragraph.score }}&nbsp;</span>
+                         data-para-url="{{ lead_paragraph.get_vote_url }}">
+                        <span class="score">{{ lead_paragraph.score }}</span>
                         {% include 'cites/paragraph_buttons.html' %}
                         <a class="btn btn-sm btn-secondary pull-right"
                            id="lead-para-res-btn"
@@ -39,8 +39,8 @@
         </div>
         {# Response Form #}
         <div class="row collapse" id="response-div">
-            <div class="col-lg-6 col-md-8 col-sm-12">
-                <form action="{% url "cites:post_para" lead_paragraph.url %}"
+            <div class="col-xl-6 col-lg-6 col-md-8 col-sm-12">
+                <form action="{{ lead_paragraph.get_post_response_url }}"
                       method="post">
                     {% csrf_token %}
                     <textarea class="form-control"
@@ -59,21 +59,21 @@
         {# Child Chains #}
         <div class="row">
             {% for paragraph_chain in paragraphs %}
-                <div class="col-lg-3 col-md-4 col-sm-6">
+                <div class="col-xl-3 col-lg-3 col-md-4 col-sm-6">
                     {% for paragraph in paragraph_chain %}
                         <div class="card mb-2">
                             <div class="card-body pt-1 paragraph-text">
                                 <b>{{ paragraph.level }}&nbsp;({{ paragraph.author }})</b>
                                 <br>
-                                <a href="{% url 'cites:detail_para' paragraph.url %}">{{ paragraph.text }}</a>
+                                <a href="{{ paragraph.get_absolute_url }}">{{ paragraph.text }}</a>
                             </div>
                             <div class="card-footer"
-                                 data-para-url="{% url 'cites:vote' paragraph.url %}">
-                                <span class="score pull-left">{{ paragraph.score }}&nbsp;</span>
+                                 data-para-url="{{ paragraph.get_vote_url }}">
+                                <span class="score pl-3">{{ paragraph.score }}</span>
                                 {% include 'cites/paragraph_buttons.html' %}
                                 <a class="btn btn-sm btn-secondary pull-right make-response"
                                    role="button"
-                                   data-response-url="{% url 'cites:detail_para_response' paragraph.url %}"
+                                   data-response-url="{{ paragraph.get_respond_url }}"
                                    style="color: white">
                                     {# TODO: why do I have to add this style?? #}
                                     <span class="glyphicon glyphicon-plus"></span>
@@ -86,7 +86,7 @@
                 {# TODO: Hide more columns on smaller screens #}
             {% endfor %}
             {% for filler in fillers %}
-                <div class="col-lg-3 col-md-4 d-xl-block d-lg-block d-none paragraph-text">
+                <div class="col-xl-3 col-lg-3 col-md-4 d-xl-block d-lg-block d-none paragraph-text">
                     <div class="filler well">
                         {{ filler.filler }}
                     </div>

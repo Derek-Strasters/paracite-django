@@ -2,6 +2,7 @@ from random import randrange
 
 from django.db import models
 from django.db.models import CASCADE, PROTECT
+from django.urls import reverse
 
 from paracite_profile.models import Profile
 from .converters import id_to_url
@@ -96,6 +97,9 @@ class Story(models.Model):
     # TODO: move the preceding to abstract base class
     objects = StoryManager()
 
+    def get_absolute_url(self):
+        return reverse('cites:detail_story', args=[id_to_url(self.id)])
+
     def first_para(self):
         return self.paragraph_set.get(level=0)
 
@@ -131,6 +135,18 @@ class Paragraph(models.Model):
     created_date = models.DateTimeField(auto_now_add=True)
     edited_date = models.DateTimeField(auto_now=True)
     objects = ParagraphManager()
+
+    def get_absolute_url(self):
+        return reverse('cites:detail_para', args=[id_to_url(self.id)])
+
+    def get_vote_url(self):
+        return reverse('cites:vote', args=[id_to_url(self.id)])
+
+    def get_respond_url(self):
+        return reverse('cites:detail_para_respond', args=[id_to_url(self.id)])
+
+    def get_post_response_url(self):
+        return reverse('cites:post_para', args=[id_to_url(self.id)])
 
     def children(self, start=0, size=4):
         """
