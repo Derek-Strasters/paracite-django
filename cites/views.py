@@ -14,9 +14,18 @@ class IndexView(generic.ListView):
         return Story.objects.stories_previews()
 
 
-class CreateStory(generic.CreateView):
-    model = Story
-    fields = ['title']
+def create_story(request):  # FIXME: Class based view???
+    if request.method == 'POST':
+        print()
+    else:
+        context = {
+            'form': {
+                'Title': {[
+                    #  TODO: Fuck, this read the django docs for class based
+                ]}
+            }
+        }
+        return render(request, 'cites/story_form.html', context)
 
 
 def detail_story(request, story_id):
@@ -77,6 +86,5 @@ def post_para(request, paragraph_id):
                                            new_para_text,
                                            paragraph)
         # TODO: finish when profile is ready
-        pass
 
     return redirect(paragraph)
