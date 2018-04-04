@@ -25,7 +25,7 @@ SECRET_KEY = '6*cg6pn+3n9vxyethg=v2exo3ia_k=1ex-7c&s0_gg2j&rw4%b'
 DEBUG = True
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1',
-                 'beefy.vpn.paracite.org', '10.0.0.118']
+                 'beefy.vpn.paracite.org', '10.0.0.118', 'paracite.org']
 
 # Application definition
 

@@ -14,18 +14,22 @@ class IndexView(generic.ListView):
         return Story.objects.stories_previews()
 
 
-def create_story(request):  # FIXME: Class based view???
-    if request.method == 'POST':
-        print()
-    else:
-        context = {
-            'form': {
-                'Title': {[
-                    #  TODO: Fuck, this read the django docs for class based
-                ]}
-            }
-        }
-        return render(request, 'cites/story_form.html', context)
+class CreateStory(generic.CreateView):
+    model = Story
+    fields = ['title']
+
+# def create_story(request):  # FIXME: Class based view???
+#     if request.method == 'POST':
+#         print()
+#     else:
+#         context = {
+#             'form': {
+#                 'Title': {[
+#                     #  TODO: Dig into the django docs for class based
+#                 ]}
+#             }
+#         }
+#         return render(request, 'cites/story_form.html', context)
 
 
 def detail_story(request, story_id):
