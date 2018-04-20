@@ -10,7 +10,7 @@ urlpatterns = [
     path('', views.IndexView.as_view(), name='index'),
 
     # Add new story
-    path('s/create/', views.CreateStory.as_view(), name='new_story'),
+    path('s/create/', views.create_story, name='new_story'),
 
     # Go to specific story
     path('s/<shortened:story_id>/', views.detail_story, name='detail_story'),

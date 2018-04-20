@@ -3,6 +3,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.views import generic
 
 from paracite_profile.models import Profile
+from .forms import NewStory
 from .models import Story, Paragraph
 
 
@@ -14,22 +15,19 @@ class IndexView(generic.ListView):
         return Story.objects.stories_previews()
 
 
-class CreateStory(generic.CreateView):
-    model = Story
-    fields = ['title']
+def create_story(request):
+    if request.method == "POST":
+        form = NewStory(request.POST)
 
-# def create_story(request):  # FIXME: Class based view???
-#     if request.method == 'POST':
-#         print()
-#     else:
-#         context = {
-#             'form': {
-#                 'Title': {[
-#                     #  TODO: Dig into the django docs for class based
-#                 ]}
-#             }
-#         }
-#         return render(request, 'cites/story_form.html', context)
+        if form.is_valid():
+            story = Story.objects.create_story(Profile.objects.first(),
+                                               form.cleaned_data['title'],
+                                               form.cleaned_data['paragraph'])
+            return redirect(story)
+    else:
+        form = NewStory()
+
+    return render(request, 'cites/story_form.html', {'form': form})
 
 
 def detail_story(request, story_id):
@@ -80,7 +78,7 @@ def vote(request, paragraph_id):
     return JsonResponse(response)
 
 
-def post_para(request, paragraph_id):
+def post_para(request, paragraph_id):  # TODO: redo with forms
     paragraph = get_object_or_404(Paragraph, id=paragraph_id)
 
     if request.method == "POST":
