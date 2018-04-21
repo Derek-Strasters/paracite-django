@@ -2,7 +2,7 @@ from django.urls import path, register_converter
 
 from . import converters, views
 
-register_converter(converters.MakeURLWeird, 'shortened')
+register_converter(converters.MakeURLSmall, 'shortened')
 
 app_name = 'cites'
 

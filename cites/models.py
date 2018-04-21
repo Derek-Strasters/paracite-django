@@ -19,11 +19,7 @@ from .converters import id_to_url
 
 class StoryManager(models.Manager):
     def create_story(self, author, title, text):
-        story = self.select_for_update().create(author=author, title=title)
-        url = id_to_url(story.id)
-        story.url = url
-        story.save()
-
+        story = self.create(author=author, title=title)
         Paragraph.objects.create_first_paragraph(story, author, text)
 
         return story
@@ -33,49 +29,31 @@ class StoryManager(models.Manager):
         sp = [{'story': s, 'preview': s.first_para()} for s in all_stories]
         return sp
 
-    def update_urls(self):
-        all_stories = self.only('url', 'id').select_for_update().all()
-        for story in all_stories:
-            story.url = id_to_url(story.id)
-            story.save()
-
 
 class ParagraphManager(models.Manager):
     def create_first_paragraph(self, story, author, text):
         level = 0
         score = randrange(5, 15)
-        paragraph = self.select_for_update().create(story=story,
-                                                    author=author,
-                                                    text=text,
-                                                    score=score,
-                                                    level=level)
-        url = id_to_url(paragraph.id)
-        paragraph.url = url
-        paragraph.save()
-
+        paragraph = self.create(story=story,
+                                author=author,
+                                text=text,
+                                score=score,
+                                level=level)
         return paragraph
 
     def create_paragraph(self, author, text, parent_paragraph):
         level = parent_paragraph.level + 1
         score = randrange(5, 15)
-        paragraph = self.select_for_update().create(
+        paragraph = self.create(
             story=parent_paragraph.story,
             parent_paragraph=parent_paragraph,
             author=author,
             text=text,
             score=score,
             level=level)
-        url = id_to_url(paragraph.id)
-        paragraph.url = url
         paragraph.save()
 
         return paragraph
-
-    def update_urls(self):
-        all_paragraphs = self.only('url', 'id').select_for_update().all()
-        for paragraph in all_paragraphs:
-            paragraph.url = id_to_url(paragraph.id)
-            paragraph.save()
 
 
 class VotingRecordManager(models.Manager):
@@ -89,8 +67,6 @@ class Story(models.Model):
                                on_delete=PROTECT)
 
     score = models.BigIntegerField(default=0)
-    url = models.URLField(max_length=8)  # TODO: Should be unique?
-    # TODO: Should url be the PK?
 
     created_date = models.DateTimeField(auto_now_add=True)
     edited_date = models.DateTimeField(auto_now=True)
@@ -119,13 +95,11 @@ class Paragraph(models.Model):
                                related_name='author')
     text = models.CharField(max_length=4095)
     score = models.IntegerField()
-    url = models.URLField(max_length=8)
     level = models.IntegerField()
     # Not required
     voters = models.ManyToManyField('paracite_profile.Profile',
                                     through='VotingRecord',
-                                    through_fields=(
-                                        'paragraph', 'profile'),
+                                    through_fields=('paragraph', 'profile'),
                                     related_name='voters')
     parent_paragraph = models.ForeignKey('self',
                                          on_delete=CASCADE,
@@ -179,7 +153,6 @@ class Paragraph(models.Model):
         paragraph = self
         index = 0
 
-        queryset = self.paragraph_set.all()
         paragraphs.append(paragraph)
 
         while paragraph.paragraph_set.exists() and index < max_count:
