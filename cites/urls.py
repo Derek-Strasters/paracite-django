@@ -22,10 +22,6 @@ urlpatterns = [
     path('p/<shortened:paragraph_id>/respond/', views.detail_para_respond,
          name='detail_para_respond'),
 
-    # Go to specific paragraph in story, also used for POST operations
-    path('p/<shortened:paragraph_id>/post-para/', views.post_para,
-         name='post_para'),
-
     # Vote on a paragraph
     path('p/<shortened:paragraph_id>/vote/', views.vote, name='vote')
 ]

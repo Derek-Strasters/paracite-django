@@ -3,7 +3,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.views import generic
 
 from paracite_profile.models import Profile
-from .forms import NewStory
+from .forms import NewStory, NewParagraph
 from .models import Story, Paragraph
 
 
@@ -26,8 +26,7 @@ def create_story(request):
             return redirect(story)
     else:
         form = NewStory()
-
-    return render(request, 'cites/story_form.html', {'form': form})
+        return render(request, 'cites/story_form.html', {'form': form})
 
 
 def detail_story(request, story_id):
@@ -49,17 +48,28 @@ def detail_para_respond(request, paragraph_id):
 
 
 def render_detail(request, story, paragraph, is_response=False):
-    filler = {'filler': 'No more alternative paragraphs'}
-    paragraphs = [child.child_chain() for child in paragraph.children()]
-    fillers = [filler] * max(4 - len(paragraphs), 0)
-    context = {
-        'story': story,
-        'lead_paragraph': paragraph,
-        'paragraphs': paragraphs,
-        'fillers': fillers,
-        'responding': is_response,
-    }
-    return render(request, 'cites/detail.html', context)
+    if request.method == "POST":
+        form = NewParagraph(request.POST)
+        if form.is_valid():
+            new_para_text = form.cleaned_data['paragraph']
+            Paragraph.objects.create_paragraph(Profile.objects.first(),
+                                               new_para_text,
+                                               paragraph)
+        return redirect(paragraph)
+    else:
+        filler = {'filler': 'No more alternative paragraphs'}
+        paragraphs = [child.child_chain() for child in paragraph.children()]
+        fillers = [filler] * max(4 - len(paragraphs), 0)
+        form = NewParagraph()
+        context = {
+            'story': story,
+            'lead_paragraph': paragraph,
+            'paragraphs': paragraphs,
+            'fillers': fillers,
+            'responding': is_response,
+            'form': form,
+        }
+        return render(request, 'cites/detail.html', context)
 
 
 def vote(request, paragraph_id):
@@ -76,17 +86,3 @@ def vote(request, paragraph_id):
                     'message': 'Bad request'}
 
     return JsonResponse(response)
-
-
-def post_para(request, paragraph_id):  # TODO: redo with forms
-    paragraph = get_object_or_404(Paragraph, id=paragraph_id)
-
-    if request.method == "POST":
-        new_para_text = request.POST['new-para']
-        # TODO: add data validation
-        Paragraph.objects.create_paragraph(Profile.objects.first(),
-                                           new_para_text,
-                                           paragraph)
-        # TODO: finish when profile is ready
-
-    return redirect(paragraph)
