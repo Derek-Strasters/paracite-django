@@ -31,7 +31,6 @@ def create_story(request):
 
 
 def detail_story(request, story_id):
-    print(story_id)
     story = get_object_or_404(Story, id=story_id)
     lead_paragraph = story.first_para()
     return render_detail(request, story, lead_paragraph)
