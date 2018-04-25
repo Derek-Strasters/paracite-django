@@ -23,5 +23,8 @@ urlpatterns = [
          name='detail_para_respond'),
 
     # Vote on a paragraph
-    path('p/<shortened:paragraph_id>/vote/', views.vote, name='vote')
+    path('p/<shortened:paragraph_id>/vote/', views.vote, name='vote'),
+
+    # Register new user
+    path('register/', views.UserFormView.as_view(), name='register')
 ]

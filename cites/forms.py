@@ -1,4 +1,5 @@
 from django import forms
+from django.contrib.auth.models import User
 
 
 class NewStory(forms.Form):
@@ -18,7 +19,16 @@ class NewStory(forms.Form):
 class NewParagraph(forms.Form):
     paragraph = forms.CharField(label='New Paragraph',
                                 max_length=4095,
+                                help_text='Enter the first paragraph',
                                 widget=forms.Textarea(attrs={
                                     'class': 'form-control',
                                     'placeholder': 'Enter the first paragraph',
                                     'rows': '7'}))
+
+
+class UserForm(forms.ModelForm):
+    password = forms.CharField(widget=forms.PasswordInput)
+
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'password']

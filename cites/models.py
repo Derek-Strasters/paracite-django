@@ -93,7 +93,7 @@ class Paragraph(models.Model):
     author = models.ForeignKey('paracite_profile.Profile',
                                on_delete=PROTECT,
                                related_name='author')
-    text = models.CharField(max_length=4095)
+    text = models.TextField(max_length=4095)
     score = models.IntegerField()
     level = models.IntegerField()
     # Not required

@@ -1,9 +1,10 @@
+from django.contrib.auth import authenticate, login
 from django.http.response import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views import generic
 
 from paracite_profile.models import Profile
-from .forms import NewStory, NewParagraph
+from .forms import NewStory, NewParagraph, UserForm
 from .models import Story, Paragraph
 
 
@@ -13,6 +14,35 @@ class IndexView(generic.ListView):
 
     def get_queryset(self):
         return Story.objects.stories_previews()
+
+
+class UserFormView(generic.View):
+    form_class = UserForm
+    template_name = 'cites/registration_form.html'
+
+    def get(self, request):
+        form = self.form_class(None)
+        return render(request, self.template_name, {'form': form})
+
+    def post(self, request):
+        form = self.form_class(request.POST)
+
+        if form.is_valid():
+            user = form.save(commit=False)
+
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password']
+            user.set_password(password)
+            user.save()
+
+            user = authenticate(username=username, password=password)
+
+            if user is not None:
+                if user.is_active:
+                    login(request, user)
+                    return redirect('cites:index')
+
+        return render(request, self.template_name, {'form': form})
 
 
 def create_story(request):
@@ -72,11 +102,11 @@ def render_detail(request, story, paragraph, is_response=False):
         return render(request, 'cites/detail.html', context)
 
 
-def vote(request, paragraph_id):
+def vote(request, paragraph_id):  # TODO: migrate to use forms
     paragraph = get_object_or_404(Paragraph, id=paragraph_id)
 
-    if request.method == "POST":
-        vote_val = request.POST['v']  # TODO: add validation
+    if request.method == "POST":  # TODO: validate values
+        vote_val = request.POST['v']
         paragraph.score = paragraph.score + int(vote_val)
         paragraph.save()
 
