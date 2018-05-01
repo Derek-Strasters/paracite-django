@@ -8,8 +8,8 @@ from paracite_profile.models import Profile
 from .converters import id_to_url
 
 
-# OMG, notes! OK this is to do stuff, so the authors can create their own
-# stories and optionally only allow certain collaborators to participate, and
+# Notes (put in README): the authors can create their own
+# stories and optionally allow only certain collaborators to participate, and
 # can even control weather or not it is publicly visible or not.  A user can
 # create their own private story or a few friends can craft a novel where the
 # public can vote but not make edits (perhaps they can suggest edits)
@@ -70,7 +70,7 @@ class Story(models.Model):
 
     created_date = models.DateTimeField(auto_now_add=True)
     edited_date = models.DateTimeField(auto_now=True)
-    # TODO: move the preceding to abstract base class
+    # TODO: move the preceding to abstract base class or mixin
     objects = StoryManager()
 
     def get_absolute_url(self):
