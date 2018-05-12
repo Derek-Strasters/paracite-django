@@ -24,14 +24,14 @@
 
 <body>
 <header>
-    <nav class="navbar navbar-expand-md navbar-dark bg-dark ">
+    <nav class="navbar navbar-expand-sm navbar-dark bg-dark">
         <a class="navbar-brand link-home" href="{% url 'cites:index' %}">
-            <img class="d-inline-block align-top"
+            <img class="d-inline-block"
                  src="{% static 'image/favicon.png' %}"
                  width="32"
                  height="32"
                  alt="bio-hazard">
-            (Para)llel (Cite)ations
+            (Para)(Cite)
         </a>
         <button class="navbar-toggler" type="button" data-toggle="collapse"
                 data-target="#navbarSupportedContent"
@@ -42,24 +42,41 @@
 
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav ml-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="#"><span class="glyphicon glyphicon-plus"></span>NewStory</a>
-                </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#"
-                       id="navbarDropdown" role="button" data-toggle="dropdown"
-                       aria-haspopup="true" aria-expanded="false">
-                        Profile
-                    </a>
-                    <div class="dropdown-menu"
-                         aria-labelledby="navbarDropdown">
-                        <a class="dropdown-item" href="#">Action</a>
-                        <a class="dropdown-item" href="#">Another action</a>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item"
-                           href="#">Something else here</a>
-                    </div>
-                </li>
+                {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link disabled"
+                           href="#">Logged in as <b>{{ user }}</b></a>
+                    </li>
+{#                    <li class="nav-item">#}
+{#                        <a class="nav-link" href="{% url "cites:new_story" %}">#}
+{#                            <span class="glyphicon glyphicon-plus"></span>NewStory</a>#}
+{#                    </li>#}
+                    <li class="nav-item dropdown mr-4">
+                        <a class="nav-link dropdown-toggle" href="#"
+                           id="navbarDropdown" role="button"
+                           data-toggle="dropdown"
+                           aria-haspopup="true"
+                           aria-expanded="false">Profile</a>
+                        <div class="dropdown-menu"
+                             aria-labelledby="navbarDropdown">
+                            <a class="dropdown-item"
+                               href="#">Profile</a>
+                            <a class="dropdown-item"
+                               href="#">Another action</a>
+                            <a class="dropdown-item"
+                               href="{% url "cites:new_story" %}">
+                                <span class="glyphicon glyphicon-plus"></span> New Story</a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item"
+                               href="{% url "logout" %}">LOGOUT</a>
+                        </div>
+                    </li>
+                {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link"
+                           href="{% url "login" %}">Login/Signup</a>
+                    </li>
+                {% endif %}
             </ul>
         </div>
     </nav>

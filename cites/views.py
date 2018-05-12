@@ -4,7 +4,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.views import generic
 
 from paracite_profile.models import Profile
-from .forms import NewStory, NewParagraph, UserForm
+from .forms import *
 from .models import Story, Paragraph
 
 
@@ -17,7 +17,7 @@ class IndexView(generic.ListView):
 
 
 class UserFormView(generic.View):
-    form_class = UserForm
+    form_class = UserCreateForm
     template_name = 'cites/registration_form.html'
 
     def get(self, request):

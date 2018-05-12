@@ -26,5 +26,5 @@ urlpatterns = [
     path('p/<shortened:paragraph_id>/vote/', views.vote, name='vote'),
 
     # Register new user
-    path('register/', views.UserFormView.as_view(), name='register')
+    path('register/', views.UserFormView.as_view(), name='register'),
 ]

@@ -26,9 +26,17 @@ class NewParagraph(forms.Form):
                                     'rows': '7'}))
 
 
-class UserForm(forms.ModelForm):
+class UserCreateForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput)
 
     class Meta:
         model = User
         fields = ['username', 'email', 'password']
+
+
+class UserLoginForm(forms.ModelForm):
+    password = forms.CharField(widget=forms.PasswordInput)
+
+    class Meta:
+        model = User
+        fields = ['username', 'password']

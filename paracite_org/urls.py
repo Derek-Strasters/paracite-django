@@ -17,8 +17,21 @@ from django.contrib import admin
 from django.urls import include, path
 
 urlpatterns = [
+    # Cites app
     path('', include('cites.urls')),
-    # path('cites/', include('cites.urls')),
+
+    # User functions
+    # accounts/ login/ [name='login']
+    # accounts/ logout/ [name='logout']
+    # accounts/ password_change/ [name='password_change']
+    # accounts/ password_change/done/ [name='password_change_done']
+    # accounts/ password_reset/ [name='password_reset']
+    # accounts/ password_reset/done/ [name='password_reset_done']
+    # accounts/ reset/<uidb64>/<token>/ [name='password_reset_confirm']
+    # accounts/ reset/done/ [name='password_reset_complete']
+    path('accounts/', include('django.contrib.auth.urls')),
+
     path('profile/', include('paracite_profile.urls')),
+
     path('django-admin/', admin.site.urls),
 ]
